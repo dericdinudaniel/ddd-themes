@@ -8,7 +8,7 @@ const colorSchemes = ['light', 'dark']
 const MEDIA = '(prefers-color-scheme: dark)'
 const isServer = typeof window === 'undefined'
 const ThemeContext = React.createContext<UseThemeProps | undefined>(undefined)
-const defaultContext: UseThemeProps = { setTheme: _ => { }, themes: [] }
+const defaultContext: UseThemeProps = { setTheme: _ => {}, themes: [] }
 
 const saveToLS = (storageKey: string, value: string) => {
   // Save to storage
@@ -46,47 +46,52 @@ const Theme = ({
   scriptProps
 }: ThemeProviderProps) => {
   const [theme, setThemeState] = React.useState(() => getTheme(storageKey, defaultTheme))
-  const [resolvedTheme, setResolvedTheme] = React.useState(() => theme === 'system' ? getSystemTheme() : theme)
+  const [resolvedTheme, setResolvedTheme] = React.useState(() =>
+    theme === 'system' ? getSystemTheme() : theme
+  )
   const attrs = !value ? themes : Object.values(value)
 
-  const applyTheme = React.useCallback(theme => {
-    let resolved = theme
-    if (!resolved) return
+  const applyTheme = React.useCallback(
+    theme => {
+      let resolved = theme
+      if (!resolved) return
 
-    // If theme is system, resolve it before setting theme
-    if (theme === 'system' && enableSystem) {
-      resolved = getSystemTheme()
-    }
+      // If theme is system, resolve it before setting theme
+      if (theme === 'system' && enableSystem) {
+        resolved = getSystemTheme()
+      }
 
-    const name = value ? value[resolved] : resolved
-    const enable = disableTransitionOnChange ? disableAnimation(nonce) : null
-    const d = document.documentElement
+      const name = value ? value[resolved] : resolved
+      const enable = disableTransitionOnChange ? disableAnimation(nonce) : null
+      const d = document.documentElement
 
-    const handleAttribute = (attr: Attribute) => {
-      if (attr === 'class') {
-        d.classList.remove(...attrs)
-        if (name) d.classList.add(name)
-      } else if (attr.startsWith('data-')) {
-        if (name) {
-          d.setAttribute(attr, name)
-        } else {
-          d.removeAttribute(attr)
+      const handleAttribute = (attr: Attribute) => {
+        if (attr === 'class') {
+          d.classList.remove(...attrs)
+          if (name) d.classList.add(name)
+        } else if (attr.startsWith('data-')) {
+          if (name) {
+            d.setAttribute(attr, name)
+          } else {
+            d.removeAttribute(attr)
+          }
         }
       }
-    }
 
-    if (Array.isArray(attribute)) attribute.forEach(handleAttribute)
-    else handleAttribute(attribute)
+      if (Array.isArray(attribute)) attribute.forEach(handleAttribute)
+      else handleAttribute(attribute)
 
-    if (enableColorScheme) {
-      const fallback = colorSchemes.includes(defaultTheme) ? defaultTheme : null
-      const colorScheme = colorSchemes.includes(resolved) ? resolved : fallback
-      // @ts-ignore
-      d.style.colorScheme = colorScheme
-    }
+      if (enableColorScheme) {
+        const fallback = colorSchemes.includes(defaultTheme) ? defaultTheme : null
+        const colorScheme = colorSchemes.includes(resolved) ? resolved : fallback
+        // @ts-ignore
+        d.style.colorScheme = colorScheme
+      }
 
-    enable?.()
-  }, [nonce])
+      enable?.()
+    },
+    [nonce]
+  )
 
   const setTheme = React.useCallback(value => {
     if (typeof value === 'function') {
@@ -161,6 +166,8 @@ const Theme = ({
     }),
     [theme, setTheme, forcedTheme, resolvedTheme, enableSystem, themes]
   )
+
+  console.log('ddd theme made it here')
 
   return (
     <ThemeContext.Provider value={providerValue}>
@@ -243,7 +250,7 @@ const disableAnimation = (nonce?: string) => {
 
   return () => {
     // Force restyle
-    ; (() => window.getComputedStyle(document.body))()
+    ;(() => window.getComputedStyle(document.body))()
 
     // Wait for next tick before removing
     setTimeout(() => {
